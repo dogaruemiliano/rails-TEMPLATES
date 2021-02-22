@@ -137,10 +137,12 @@ after_bundle do
     end
   RUBY
 
-  # migrate + devise views
+  # migrate + devise views with bootstrap responsive
   ########################################
   rails_command 'db:migrate'
-  generate('devise:views')
+
+  run 'curl -L https://github.com/dogaruemiliano/rails-components/archive/master.zip > components.zip'
+  run 'unzip components.zip -d app/views && rm components.zip &&  mv app/views/rails-components-master/templates/devise app/views/devise '
 
   # Pages Controller
   ########################################
@@ -213,4 +215,6 @@ after_bundle do
 
   # Fix puma config
   gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
+
+
 end
