@@ -199,9 +199,11 @@ after_bundle do
   environment 'config.action_mailer.default_url_options = { host: "http://localhost:3000" }', env: 'development'
   environment 'config.action_mailer.default_url_options = { host: "http://TODO_PUT_YOUR_DOMAIN_HERE" }', env: 'production'
 
-  # React & Redux
+  # React & Redux + dependencies
   ########################################
-
+  rails_command 'webpacker:install'
+  rails_command 'webpacker:install:react'
+  generate('react:install')
 
   # Webpacker / Yarn
   ########################################
