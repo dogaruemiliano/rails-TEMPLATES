@@ -113,6 +113,13 @@ after_bundle do
   # Routes
   ########################################
   route "root to: 'pages#home'"
+  route """
+      namespace :api, defaults: { format: :json } do
+        namespace :v1 do
+          # YOUR API ROUTES
+        end
+      end
+  """
 
   # Git ignore
   ########################################
@@ -131,7 +138,6 @@ after_bundle do
 
   # Pundit install
   ########################################
-
   generate('pundit:install')
 
   # App controller
@@ -180,6 +186,37 @@ after_bundle do
       end
     end
   RUBY
+
+  # API Controller
+  ########################################
+  run 'mkdir -p app/controllers/api/v1'
+  run 'curl -L https://raw.githubusercontent.com/dogaruemiliano/rails-TEMPLATES/master/code/base_controller.rb > app/controllers/api/v1/base_controller.rb'
+
+  # run 'touch app/controllers/api/v1/base_controller.rb'
+
+  # file 'app/controllers/api/v1/base_controller.rb', <<~RUBY
+  #   # class Api::V1::BaseController < ActionController::API
+  #   #   include Pundit
+
+  #   #   after_action :verify_authorized, except: :index
+  #   #   after_action :verify_policy_scoped, only: :index
+
+  #   #   rescue_from Pundit::NotAuthorizedError,   with: :user_not_authorized
+  #   #   rescue_from ActiveRecord::RecordNotFound, with: :not_found
+
+  #   #   private
+
+  #   #   def user_not_authorized(exception)
+  #   #   #   render json: {
+  #   #   #     error: "Unauthorized #{exception.policy.class.to_s.underscore.camelize}.#{exception.query}"
+  #   #   #   }, status: :unauthorized
+  #   #   end
+
+  #   #   def not_found(exception)
+  #   #   #   render json: { error: exception.message }, status: :not_found
+  #   #   # end
+  #   # end
+  # RUBY
 
   # Environments
   ########################################
