@@ -4,6 +4,8 @@ run "if uname | grep -q 'Darwin'; then pgrep spring | xargs kill -9; fi"
 ########################################
 inject_into_file 'Gemfile', before: 'group :development, :test do' do
   <<~RUBY
+    gem 'react-rails'
+
     gem 'devise'
     gem 'pundit'
 
@@ -196,6 +198,10 @@ after_bundle do
   ########################################
   environment 'config.action_mailer.default_url_options = { host: "http://localhost:3000" }', env: 'development'
   environment 'config.action_mailer.default_url_options = { host: "http://TODO_PUT_YOUR_DOMAIN_HERE" }', env: 'production'
+
+  # React & Redux
+  ########################################
+
 
   # Webpacker / Yarn
   ########################################

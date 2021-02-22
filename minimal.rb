@@ -100,6 +100,8 @@ after_bundle do
     .DS_Store
   TXT
 
+  # React & Redux
+
   # Webpacker / Yarn
   ########################################
   run 'yarn add popper.js jquery bootstrap'
