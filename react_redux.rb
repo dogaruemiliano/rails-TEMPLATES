@@ -204,6 +204,8 @@ after_bundle do
   rails_command 'webpacker:install'
   rails_command 'webpacker:install:react'
   generate('react:install')
+  run 'yarn add history react-router-dom react-bootstrap'
+  run 'yarn add redux react-redux redux-devtools-extension redux-logger redux-promise'
 
   # Webpacker / Yarn
   ########################################
