@@ -6,6 +6,7 @@ inject_into_file 'Gemfile', before: 'group :development, :test do' do
   <<~RUBY
     gem 'devise'
     gem 'pundit'
+    gem 'simple_token_authentication'
 
     gem 'autoprefixer-rails'
     gem 'font-awesome-sass'
@@ -135,6 +136,14 @@ after_bundle do
   ########################################
   generate('devise:install')
   generate('devise', 'User')
+
+  inject_into_file 'app/models/user.rb', after: 'class User < ApplicationRecord' do
+    <<~RUBY
+      acts_as_token_authenticatable
+    RUBY
+  end
+
+  generate(:migration, "AddTokenToUsers", "authentication_token:string{30}:uniq")
 
   # Pundit install
   ########################################

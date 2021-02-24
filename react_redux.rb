@@ -8,6 +8,7 @@ inject_into_file 'Gemfile', before: 'group :development, :test do' do
 
     gem 'devise'
     gem 'pundit'
+    gem 'simple_token_authentication'
 
     gem 'autoprefixer-rails'
     gem 'font-awesome-sass'
@@ -138,6 +139,14 @@ after_bundle do
   generate('devise:install')
   generate('devise', 'User')
 
+  inject_into_file 'app/models/user.rb', after: 'class User < ApplicationRecord' do
+    <<~RUBY
+      acts_as_token_authenticatable
+    RUBY
+  end
+
+  generate(:migration, "AddTokenToUsers", "authentication_token:string{30}:uniq")
+
   # Pundit install
   ########################################
   generate('pundit:install')
@@ -204,12 +213,13 @@ after_bundle do
   rails_command 'webpacker:install'
   rails_command 'webpacker:install:react'
   generate('react:install')
-  run 'yarn add history react-router-dom react-bootstrap'
-  run 'yarn add redux react-redux redux-devtools-extension redux-logger redux-promise'
+  # run 'yarn add history react-router-dom react-bootstrap'
+  # run 'yarn add redux react-redux redux-devtools-extension redux-logger redux-promise'
 
   # Webpacker / Yarn
   ########################################
   run 'yarn add popper.js jquery bootstrap'
+
   append_file 'app/javascript/packs/application.js', <<~JS
 
 
