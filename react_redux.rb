@@ -141,7 +141,7 @@ after_bundle do
 
   inject_into_file 'app/models/user.rb', after: 'class User < ApplicationRecord' do
     <<~RUBY
-      acts_as_token_authenticatable
+      \nacts_as_token_authenticatable
     RUBY
   end
 
@@ -264,11 +264,11 @@ after_bundle do
   ########################################
   run 'curl -L https://raw.githubusercontent.com/dogaruemiliano/rails-TEMPLATES/master/.rubocop.yml > .rubocop.yml'
 
+  # Fix puma config
+  gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
+
   # Git
   ########################################
   git add: '.'
   git commit: "-m 'Initial commit with devise template from https://github.com/dogaruemiliano/rails-TEMPLATES'"
-
-  # Fix puma config
-  gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
 end
