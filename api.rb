@@ -139,7 +139,7 @@ after_bundle do
 
   inject_into_file 'app/models/user.rb', after: 'class User < ApplicationRecord' do
     <<~RUBY
-      \nacts_as_token_authenticatable
+      \n\tacts_as_token_authenticatable
     RUBY
   end
 

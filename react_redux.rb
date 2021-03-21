@@ -111,11 +111,11 @@ after_bundle do
   ########################################
   rails_command 'db:drop db:create db:migrate'
   generate('simple_form:install', '--bootstrap')
-  generate(:controller, 'pages', 'home', '--skip-routes', '--no-test-framework')
+  generate(:controller, 'pages', 'contact', '--no-test-framework')
 
   # Routes
   ########################################
-  route "root to: 'pages#home'"
+  route "root to: 'static#main'"
   route """
       namespace :api, defaults: { format: :json } do
         namespace :v1 do
@@ -141,7 +141,7 @@ after_bundle do
 
   inject_into_file 'app/models/user.rb', after: 'class User < ApplicationRecord' do
     <<~RUBY
-      \nacts_as_token_authenticatable
+      \n\tacts_as_token_authenticatable
     RUBY
   end
 
@@ -174,7 +174,7 @@ after_bundle do
       private
 
       def skip_pundit?
-        devise_controller? || params[:controller] =~ /(^(rails_)?admin)|(^pages$)/
+        devise_controller? || params[:controller] =~ /(^(rails_)?admin)|(^pages$)|(^static$)/
       end
     end
   RUBY
@@ -184,16 +184,16 @@ after_bundle do
   rails_command 'db:migrate'
 
   run 'curl -L https://github.com/dogaruemiliano/rails-components/archive/master.zip > components.zip'
-  run 'unzip components.zip -d app/views && rm components.zip &&  mv app/views/rails-components-master/templates/devise app/views/devise '
+  run 'unzip components.zip -d app/views && rm components.zip &&  mv app/views/rails-components-master/templates/devise app/views/devise && rm -fr app/views/rails-components-master'
 
   # Pages Controller
   ########################################
   run 'rm app/controllers/pages_controller.rb'
   file 'app/controllers/pages_controller.rb', <<~RUBY
     class PagesController < ApplicationController
-      skip_before_action :authenticate_user!, only: [ :home ]
+      skip_before_action :authenticate_user!, only: [ :contact ]
 
-      def home
+      def contact
       end
     end
   RUBY
@@ -203,6 +203,21 @@ after_bundle do
   run 'mkdir -p app/controllers/api/v1'
   run 'curl -L https://raw.githubusercontent.com/dogaruemiliano/rails-TEMPLATES/master/code/base_controller.rb > app/controllers/api/v1/base_controller.rb'
 
+  # (REACT) Static Controller
+  ########################################
+  file 'app/controllers/static_controller.rb', <<~RUBY
+    class StaticController < ApplicationController
+
+      def main
+      end
+    end
+  RUBY
+
+  file 'app/views/static/main.html.erb', <<~HTML
+    <%= content_tag :div, id: 'root', data: { current_user: current_user} do %>
+    <% end %>
+  HTML
+
   # Environments
   ########################################
   environment 'config.action_mailer.default_url_options = { host: "http://localhost:3000" }', env: 'development'
@@ -210,11 +225,106 @@ after_bundle do
 
   # React & Redux + dependencies
   ########################################
+  run 'yarn add history react-router-dom react-bootstrap'
+  run 'yarn add redux react-redux redux-devtools-extension redux-logger redux-promise'
   rails_command 'webpacker:install'
   rails_command 'webpacker:install:react'
   generate('react:install')
-  # run 'yarn add history react-router-dom react-bootstrap'
-  # run 'yarn add redux react-redux redux-devtools-extension redux-logger redux-promise'
+
+  ##### Actions
+  run 'mkdir -p app/javascript/packs/main-react-app/actions'
+  file 'app/javascript/packs/main-react-app/actions/index.js', <<~JS
+    // import { ACTION_TYPE, actionItself } from './file'
+
+    // export { ACTION_TYPE, actionItself }
+  JS
+
+  ##### Components
+  run 'mkdir app/javascript/packs/main-react-app/components'
+  run 'touch app/javascript/packs/main-react-app/components/.gitkeep'
+
+  ##### Containers
+  run 'mkdir app/javascript/packs/main-react-app/containers'
+  run 'touch app/javascript/packs/main-react-app/containers/.gitkeep'
+
+  ##### Reducers
+  run 'mkdir app/javascript/packs/main-react-app/reducers'
+  file 'app/javascript/packs/main-react-app/reducers/index.js', <<~JS
+    import { combineReducers } from 'redux'
+
+    // Import all of the reducers for this app
+    const identityReducer = (state = null) => state
+
+
+    // Combine reducers
+    const rootReducer = combineReducers({
+      changeMe: identityReducer
+    })
+
+    export default rootReducer;
+  JS
+
+  ##### Store
+  run 'mkdir app/javascript/packs/main-react-app/store'
+  file 'app/javascript/packs/main-react-app/store/configureStore.js', <<~JS
+    import { createStore, applyMiddleware, compose } from 'redux'
+    import reduxPromise from 'redux-promise';
+    import { createLogger } from 'redux-logger'
+    import rootReducer from '../reducers'
+    import { composeWithDevTools } from 'redux-devtools-extension'
+
+    const configureStore = (preloadedState = null) => {
+      const store = createStore(
+        rootReducer,
+        preloadedState,
+        composeWithDevTools(
+          applyMiddleware(reduxPromise, createLogger())
+        )
+      )
+
+      if (module.hot) {
+        // Enable Webpack hot module replacement for reducers
+        module.hot.accept('../reducers', () => {
+          store.replaceReducer(rootReducer)
+        })
+      }
+
+      return store
+    }
+
+    export default configureStore;
+  JS
+
+  ##### Entry file
+  file 'app/javascript/packs/main-react-app/index.jsx', <<~JSX
+    import React from 'react';
+    import ReactDOM from 'react-dom';
+    import { Provider } from 'react-redux';
+    import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
+    import { createBrowserHistory as history } from 'history'
+
+    // import App from './components/App'
+    // import '../public/stylesheet/index.scss
+
+
+    import configureStore from './store/configureStore'
+
+    const initialState = {
+      //cities: []
+    }
+
+
+    ReactDOM.render(
+      <Provider store={configureStore(initialState)}>
+        <Router histroy={history}>
+          <Switch>
+            TODO
+          </Switch>
+        </Router>
+      </Provider>,
+      document.getElementById('root')
+    );
+  JSX
 
   # Webpacker / Yarn
   ########################################
@@ -233,6 +343,7 @@ after_bundle do
 
     // Internal imports, e.g:
     // import { initSelect2 } from '../components/init_select2';
+    import './main-react-app/index.jsx'
 
     document.addEventListener('turbolinks:load', () => {
       // Call your functions here, e.g:
@@ -270,5 +381,19 @@ after_bundle do
   # Git
   ########################################
   git add: '.'
-  git commit: "-m 'Initial commit with devise template from https://github.com/dogaruemiliano/rails-TEMPLATES'"
+  git commit: "-m 'Initial commit with React-Redux template from https://github.com/dogaruemiliano/rails-TEMPLATES/react-redux.rb'"
+
+  puts "*****************************************"
+  puts "*****************************************"
+  puts "*****************************************"
+  puts "******                             ******"
+  puts "******                             ******"
+  puts "******                             ******"
+  puts "****** Run `rails g react:install` ******"
+  puts "******                             ******"
+  puts "******                             ******"
+  puts "******                             ******"
+  puts "*****************************************"
+  puts "*****************************************"
+  puts "*****************************************"
 end
