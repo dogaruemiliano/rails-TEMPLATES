@@ -4,7 +4,7 @@ run "if uname | grep -q 'Darwin'; then pgrep spring | xargs kill -9; fi"
 ########################################
 inject_into_file 'Gemfile', before: 'group :development, :test do' do
   <<~RUBY
-    gem 'autoprefixer-rails'
+    gem 'autoprefixer-rails', '10.2.5'
     gem 'font-awesome-sass'
     gem 'simple_form'
 
@@ -30,7 +30,7 @@ YAML
 ########################################
 run 'rm -rf app/assets/stylesheets'
 run 'rm -rf vendor'
-run 'curl -L https://github.com/dogaruemiliano/stylesheets/archive/refs/heads/master.zip > stylesheets.zip'
+run 'curl -L https://github.com/dogaruemiliano/stylesheets/archive/master.zip > stylesheets.zip'
 run 'unzip stylesheets.zip -d app/assets && rm stylesheets.zip && mv app/assets/rails-stylesheets-master app/assets/stylesheets'
 
 # Dev environment
@@ -45,14 +45,12 @@ if Rails.version < "6"
         <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   HTML
   gsub_file('app/views/layouts/application.html.erb', "<%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>", scripts)
-else
-  gsub_file('app/views/layouts/application.html.erb', "<%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>", "<%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload', defer: true %>")
 end
 
 gsub_file('app/views/layouts/application.html.erb', "<%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>", "<%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload', defer: true %>")
+
 style = <<~HTML
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
       <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
 HTML
 gsub_file('app/views/layouts/application.html.erb', "<%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>", style)
@@ -103,12 +101,12 @@ after_bundle do
 
   # Webpacker / Yarn
   ########################################
-  run 'yarn add popper.js jquery bootstrap'
+  run 'yarn add popper.js jquery bootstrap@4.6'
   append_file 'app/javascript/packs/application.js', <<~JS
 
 
     // ----------------------------------------------------
-    // Note(lewagon): ABOVE IS RAILS DEFAULT CONFIGURATION
+    // Note(dogaruemiliano): ABOVE IS RAILS DEFAULT CONFIGURATION
     // WRITE YOUR OWN JS STARTING FROM HERE 👇
     // ----------------------------------------------------
 
@@ -149,12 +147,12 @@ after_bundle do
 
   # Rubocop
   ########################################
-  run 'curl -L https://raw.githubusercontent.com/lewagon/rails-templates/master/.rubocop.yml > .rubocop.yml'
+  run 'curl -L https://raw.githubusercontent.com/dogaruemiliano/rails-templates/master/.rubocop.yml > .rubocop.yml'
 
   # Git
   ########################################
   git add: '.'
-  git commit: "-m 'Initial commit with minimal template from https://github.com/lewagon/rails-templates'"
+  git commit: "-m 'Initial commit with minimal template from https://github.com/dogaruemiliano/rails-templates'"
 
   # Fix puma config
   gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
