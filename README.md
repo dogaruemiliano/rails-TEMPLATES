@@ -1,5 +1,5 @@
 # Rails Templates
-## Minimal
+## Minimal with Bootstrap 5
 
 Get a minimal rails app ready to be deployed on Heroku with Bootstrap, Simple form and debugging gems.
 
@@ -7,7 +7,7 @@ Get a minimal rails app ready to be deployed on Heroku with Bootstrap, Simple fo
 rails new \
   --database postgresql \
   --webpack \
-  -m https://raw.githubusercontent.com/dogaruemiliano/rails-TEMPLATES/master/minimal.rb \
+  -m https://raw.githubusercontent.com/dogaruemiliano/rails-TEMPLATES/master/bootstrap.rb \
   CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
 ```
 
